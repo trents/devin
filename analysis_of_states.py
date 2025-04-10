@@ -88,7 +88,7 @@ def main():
     )
     
     output_df['population_blurb'] = output_df.apply(
-        lambda row: f"{row['key_row'].title().replace('_', ' ')} is {row['population_rank']}", axis=1
+        lambda row: f"{row['key_row'].title().replace('_', ' ')} is {row['population_rank']} in the nation in population among states, DC, and Puerto Rico.", axis=1
     )
     
     mhi_data = {}
@@ -179,9 +179,13 @@ def main():
         lambda row: f"{row['key_row'].title().replace('_', ' ')} is {row['house_affordability_rank']} most affordable", axis=1
     )
     
+    output_df['census_population_formatted'] = output_df['census_population'].apply(
+        lambda x: f"{int(x):,}" if pd.notna(x) else ""
+    )
+    
     final_columns = [
         'key_row',
-        'census_population',
+        'census_population_formatted',
         'population_rank',
         'population_blurb',
         'median_household_income_formatted',
@@ -208,7 +212,7 @@ def main():
     )
     
     output_df['population_blurb'] = output_df.apply(
-        lambda row: f"{row['key_row'].title().replace('_', ' ')} is {row['population_rank']}", axis=1
+        lambda row: f"{row['key_row'].title().replace('_', ' ')} is {row['population_rank']} in the nation in population among states, DC, and Puerto Rico.", axis=1
     )
     
     output_df['median_household_income_rank'] = output_df['median_household_income'].rank(ascending=False, method='min')
