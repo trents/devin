@@ -134,7 +134,12 @@ def main():
         lambda x: f"${int(x):,}" if pd.notna(x) else ""
     )
     
-    output_df['median_household_income_rank'] = output_df['median_household_income_numeric'].rank(ascending=False, method='min')
+    unique_incomes = sorted(output_df['median_household_income_numeric'].dropna().unique(), reverse=True)
+    
+    income_to_rank = {income: i+1 for i, income in enumerate(unique_incomes)}
+    
+    output_df['median_household_income_rank'] = output_df['median_household_income_numeric'].map(income_to_rank)
+    
     output_df['median_household_income_rank'] = output_df['median_household_income_rank'].fillna(0).astype(int).astype(str)
     output_df['median_household_income_rank'] = output_df['median_household_income_rank'].apply(
         lambda x: x + ('st' if x.endswith('1') and not x.endswith('11') 
