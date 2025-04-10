@@ -149,18 +149,20 @@ def main():
     )
     
     output_df['median_household_income_blurb'] = output_df.apply(
-        lambda row: f"{row['key_row'].title().replace('_', ' ')} is {row['median_household_income_rank']}", axis=1
+        lambda row: f"{row['key_row'].title().replace('_', ' ')} is {row['median_household_income_rank']} in the nation in median household income among states, DC, and Puerto Rico.", axis=1
     )
     
     redfin_df.columns = [col.strip() for col in redfin_df.columns]
     
-    latest_month = 'July 2013'
+    latest_month = redfin_df.columns[-1]
+    print(f"Using {latest_month} as the most recent month for median sale prices")
     
     state_name_to_key = {}
     for _, row in state_keys.iterrows():
         state_name = row['alternative_name']
         key_row = row['key_row']
-        state_name_to_key[state_name] = key_row
+        if pd.notna(state_name):
+            state_name_to_key[state_name] = key_row
     
     median_sale_price_data = {}
     
