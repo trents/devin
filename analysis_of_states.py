@@ -203,10 +203,12 @@ def main():
         lambda row: f"{row['key_row'].title().replace('_', ' ')} has the {row['median_sale_price_rank']} highest median sale price on homes in the nation among states, DC, and Puerto Rico, according to Redfin data from {latest_month}.", axis=1
     )
     
-    output_df['house_affordability_ratio'] = output_df['median_household_income_numeric'] / output_df['median_sale_price_numeric']
-    output_df['house_affordability_ratio'] = output_df['house_affordability_ratio'].round(1)
+    output_df['house_affordability_ratio_unrounded'] = output_df['median_sale_price_numeric'] / output_df['median_household_income_numeric']
     
-    output_df['house_affordability_rank'] = output_df['house_affordability_ratio'].rank(ascending=False, method='min')
+    output_df['house_affordability_rank'] = output_df['house_affordability_ratio_unrounded'].rank(ascending=True, method='min')
+    
+    output_df['house_affordability_ratio'] = output_df['house_affordability_ratio_unrounded'].round(1)
+    
     output_df['house_affordability_rank'] = output_df['house_affordability_rank'].fillna(0).astype(int).astype(str)
     output_df['house_affordability_rank'] = output_df['house_affordability_rank'].apply(
         lambda x: x + ('st' if x.endswith('1') and not x.endswith('11') 
@@ -216,7 +218,7 @@ def main():
     )
     
     output_df['house_affordability_blurb'] = output_df.apply(
-        lambda row: f"{row['key_row'].title().replace('_', ' ')} is {row['house_affordability_rank']} most affordable", axis=1
+        lambda row: f"{row['key_row'].title().replace('_', ' ')} has the {row['house_affordability_rank']} lowest house affordability ratio in the nation among states, DC, and Puerto Rico, according to Redfin data from {latest_month}.", axis=1
     )
     
     output_df['census_population'] = output_df['census_population'].apply(
