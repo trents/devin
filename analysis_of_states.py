@@ -173,19 +173,24 @@ def main():
             if latest_month in redfin_df.columns and pd.notna(row[latest_month]) and row[latest_month] != '':
                 median_sale_price_data[key_row] = clean_dollar_amount(row[latest_month])
     
-    output_df['median_sale_price'] = output_df['key_row'].map(median_sale_price_data)
+    output_df['median_sale_price_numeric'] = output_df['key_row'].map(median_sale_price_data)
     
     if 'washington_dc' in output_df['key_row'].values:
-        output_df.loc[output_df['key_row'] == 'washington_dc', 'median_sale_price'] = 565000
+        output_df.loc[output_df['key_row'] == 'washington_dc', 'median_sale_price_numeric'] = 565000
     
     if 'puerto_rico' in output_df['key_row'].values:
-        output_df.loc[output_df['key_row'] == 'puerto_rico', 'median_sale_price'] = 138000
+        output_df.loc[output_df['key_row'] == 'puerto_rico', 'median_sale_price_numeric'] = 138000
     
-    output_df['median_sale_price_formatted'] = output_df['median_sale_price'].apply(
+    output_df['median_sale_price'] = output_df['median_sale_price_numeric'].apply(
         lambda x: f"${int(x):,}" if pd.notna(x) else ""
     )
     
-    output_df['median_sale_price_rank'] = output_df['median_sale_price'].rank(ascending=False, method='min')
+    unique_prices = sorted(output_df['median_sale_price_numeric'].dropna().unique(), reverse=True)
+    
+    price_to_rank = {price: i+1 for i, price in enumerate(unique_prices)}
+    
+    output_df['median_sale_price_rank'] = output_df['median_sale_price_numeric'].map(price_to_rank)
+    
     output_df['median_sale_price_rank'] = output_df['median_sale_price_rank'].fillna(0).astype(int).astype(str)
     output_df['median_sale_price_rank'] = output_df['median_sale_price_rank'].apply(
         lambda x: x + ('st' if x.endswith('1') and not x.endswith('11') 
@@ -195,10 +200,10 @@ def main():
     )
     
     output_df['median_sale_price_blurb'] = output_df.apply(
-        lambda row: f"{row['key_row'].title().replace('_', ' ')} has the {row['median_sale_price_rank']} highest median sale price on the list", axis=1
+        lambda row: f"{row['key_row'].title().replace('_', ' ')} has the {row['median_sale_price_rank']} highest median sale price on homes in the nation among states, DC, and Puerto Rico, according to Redfin data from {latest_month}.", axis=1
     )
     
-    output_df['house_affordability_ratio'] = output_df['median_household_income_numeric'] / output_df['median_sale_price']
+    output_df['house_affordability_ratio'] = output_df['median_household_income_numeric'] / output_df['median_sale_price_numeric']
     output_df['house_affordability_ratio'] = output_df['house_affordability_ratio'].round(1)
     
     output_df['house_affordability_rank'] = output_df['house_affordability_ratio'].rank(ascending=False, method='min')
@@ -226,7 +231,7 @@ def main():
         'median_household_income',
         'median_household_income_rank',
         'median_household_income_blurb',
-        'median_sale_price_formatted',
+        'median_sale_price',
         'median_sale_price_rank',
         'median_sale_price_blurb',
         'house_affordability_ratio',
