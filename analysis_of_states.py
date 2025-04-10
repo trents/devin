@@ -196,6 +196,60 @@ def main():
     ]
     
     
+    output_df = output_df.dropna(subset=['census_population'])
+    
+    output_df['population_rank'] = output_df['census_population'].rank(ascending=False, method='min')
+    output_df['population_rank'] = output_df['population_rank'].fillna(0).astype(int).astype(str)
+    output_df['population_rank'] = output_df['population_rank'].apply(
+        lambda x: x + ('st' if x.endswith('1') and not x.endswith('11') 
+                      else 'nd' if x.endswith('2') and not x.endswith('12') 
+                      else 'rd' if x.endswith('3') and not x.endswith('13') 
+                      else 'th')
+    )
+    
+    output_df['population_blurb'] = output_df.apply(
+        lambda row: f"{row['key_row'].title().replace('_', ' ')} is {row['population_rank']}", axis=1
+    )
+    
+    output_df['median_household_income_rank'] = output_df['median_household_income'].rank(ascending=False, method='min')
+    output_df['median_household_income_rank'] = output_df['median_household_income_rank'].fillna(0).astype(int).astype(str)
+    output_df['median_household_income_rank'] = output_df['median_household_income_rank'].apply(
+        lambda x: x + ('st' if x.endswith('1') and not x.endswith('11') 
+                      else 'nd' if x.endswith('2') and not x.endswith('12') 
+                      else 'rd' if x.endswith('3') and not x.endswith('13') 
+                      else 'th')
+    )
+    
+    output_df['median_household_income_blurb'] = output_df.apply(
+        lambda row: f"{row['key_row'].title().replace('_', ' ')} is {row['median_household_income_rank']}", axis=1
+    )
+    
+    output_df['median_sale_price_rank'] = output_df['median_sale_price'].rank(ascending=False, method='min')
+    output_df['median_sale_price_rank'] = output_df['median_sale_price_rank'].fillna(0).astype(int).astype(str)
+    output_df['median_sale_price_rank'] = output_df['median_sale_price_rank'].apply(
+        lambda x: x + ('st' if x.endswith('1') and not x.endswith('11') 
+                      else 'nd' if x.endswith('2') and not x.endswith('12') 
+                      else 'rd' if x.endswith('3') and not x.endswith('13') 
+                      else 'th')
+    )
+    
+    output_df['median_sale_price_blurb'] = output_df.apply(
+        lambda row: f"{row['key_row'].title().replace('_', ' ')} has the {row['median_sale_price_rank']} highest median sale price on the list", axis=1
+    )
+    
+    output_df['house_affordability_rank'] = output_df['house_affordability_ratio'].rank(ascending=False, method='min')
+    output_df['house_affordability_rank'] = output_df['house_affordability_rank'].fillna(0).astype(int).astype(str)
+    output_df['house_affordability_rank'] = output_df['house_affordability_rank'].apply(
+        lambda x: x + ('st' if x.endswith('1') and not x.endswith('11') 
+                      else 'nd' if x.endswith('2') and not x.endswith('12') 
+                      else 'rd' if x.endswith('3') and not x.endswith('13') 
+                      else 'th')
+    )
+    
+    output_df['house_affordability_blurb'] = output_df.apply(
+        lambda row: f"{row['key_row'].title().replace('_', ' ')} is {row['house_affordability_rank']} most affordable", axis=1
+    )
+    
     output_df = output_df[final_columns]
     
     output_df.to_csv('output.csv', index=False)
