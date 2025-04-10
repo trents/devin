@@ -99,13 +99,30 @@ def main():
     
     mhi_data = {}
     
+    state_name_to_key = {}
+    census_msa_to_key = {}
+    for _, row in state_keys.iterrows():
+        key_row = row['key_row']
+        if pd.notna(row['alternative_name']):
+            state_name_to_key[row['alternative_name']] = key_row
+        if pd.notna(row['census_msa']):
+            census_msa_to_key[row['census_msa']] = key_row
+    
     for col in census_mhi_df.columns[1:]:
         if '!!Median income (dollars)!!Estimate' in col:
             state_name = col.split('!!')[0]
-            if state_name in state_keys['alternative_name'].values:
+            if state_name in census_msa_to_key:
+                key_row = census_msa_to_key[state_name]
                 median_income = census_mhi_df.loc[1, col]  # Row 1 (index 1) contains Households median income
                 if pd.notna(median_income) and median_income != '':
-                    key_row = state_keys[state_keys['alternative_name'] == state_name]['key_row'].values[0]
+                    try:
+                        mhi_data[key_row] = float(median_income)
+                    except (ValueError, TypeError):
+                        mhi_data[key_row] = float(str(median_income).replace(',', ''))
+            elif state_name in state_name_to_key:
+                key_row = state_name_to_key[state_name]
+                median_income = census_mhi_df.loc[1, col]  # Row 1 (index 1) contains Households median income
+                if pd.notna(median_income) and median_income != '':
                     try:
                         mhi_data[key_row] = float(median_income)
                     except (ValueError, TypeError):
