@@ -78,6 +78,8 @@ def main():
     
     output_df['census_population'] = output_df['key_row'].map(pop_data)
     
+    output_df = output_df[output_df['census_population'].notna()]
+    
     output_df['population_rank'] = output_df['census_population'].rank(ascending=False, method='min')
     output_df['population_rank'] = output_df['population_rank'].fillna(0).astype(int).astype(str)
     output_df['population_rank'] = output_df['population_rank'].apply(
@@ -200,7 +202,7 @@ def main():
     ]
     
     
-    output_df = output_df.dropna(subset=['census_population'])
+    output_df = output_df[output_df['census_population'].notna()]
     
     output_df['population_rank'] = output_df['census_population'].rank(ascending=False, method='min')
     output_df['population_rank'] = output_df['population_rank'].fillna(0).astype(int).astype(str)
