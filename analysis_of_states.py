@@ -97,7 +97,7 @@ def main():
         if '!!Median income (dollars)!!Estimate' in col:
             state_name = col.split('!!')[0]
             if state_name in state_keys['alternative_name'].values:
-                median_income = census_mhi_df.loc[3, col]  # Row 4 (index 3) contains median household income
+                median_income = census_mhi_df.loc[1, col]  # Row 2 (index 1) contains Households median income
                 if pd.notna(median_income) and median_income != '':
                     key_row = state_keys[state_keys['alternative_name'] == state_name]['key_row'].values[0]
                     try:
@@ -105,13 +105,13 @@ def main():
                     except (ValueError, TypeError):
                         mhi_data[key_row] = float(str(median_income).replace(',', ''))
     
-    output_df['median_household_income'] = output_df['key_row'].map(mhi_data)
+    output_df['median_household_income_numeric'] = output_df['key_row'].map(mhi_data)
     
-    output_df['median_household_income_formatted'] = output_df['median_household_income'].apply(
+    output_df['median_household_income'] = output_df['median_household_income_numeric'].apply(
         lambda x: f"${int(x):,}" if pd.notna(x) else ""
     )
     
-    output_df['median_household_income_rank'] = output_df['median_household_income'].rank(ascending=False, method='min')
+    output_df['median_household_income_rank'] = output_df['median_household_income_numeric'].rank(ascending=False, method='min')
     output_df['median_household_income_rank'] = output_df['median_household_income_rank'].fillna(0).astype(int).astype(str)
     output_df['median_household_income_rank'] = output_df['median_household_income_rank'].apply(
         lambda x: x + ('st' if x.endswith('1') and not x.endswith('11') 
@@ -162,7 +162,7 @@ def main():
         lambda row: f"{row['key_row'].title().replace('_', ' ')} has the {row['median_sale_price_rank']} highest median sale price on the list", axis=1
     )
     
-    output_df['house_affordability_ratio'] = output_df['median_household_income'] / output_df['median_sale_price']
+    output_df['house_affordability_ratio'] = output_df['median_household_income_numeric'] / output_df['median_sale_price']
     
     output_df['house_affordability_ratio'] = output_df['house_affordability_ratio'].round(1)
     
@@ -188,7 +188,7 @@ def main():
         'census_population',
         'population_rank',
         'population_blurb',
-        'median_household_income_formatted',
+        'median_household_income',
         'median_household_income_rank',
         'median_household_income_blurb',
         'median_sale_price_formatted',
@@ -215,7 +215,7 @@ def main():
         lambda row: f"{row['key_row'].title().replace('_', ' ')} is {row['population_rank']} in the nation in population among states, DC, and Puerto Rico.", axis=1
     )
     
-    output_df['median_household_income_rank'] = output_df['median_household_income'].rank(ascending=False, method='min')
+    output_df['median_household_income_rank'] = output_df['median_household_income_numeric'].rank(ascending=False, method='min')
     output_df['median_household_income_rank'] = output_df['median_household_income_rank'].fillna(0).astype(int).astype(str)
     output_df['median_household_income_rank'] = output_df['median_household_income_rank'].apply(
         lambda x: x + ('st' if x.endswith('1') and not x.endswith('11') 
