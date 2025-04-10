@@ -67,7 +67,7 @@ def main():
         pop_col = f"{state_name}!!Estimate"
         
         if pop_col in census_pop_df.columns:
-            total_pop = census_pop_df.loc[2, pop_col]
+            total_pop = census_pop_df.loc[1, pop_col]  # Row 1 (index 1) contains Total population
             if pd.notna(total_pop) and total_pop != '':
                 try:
                     if total_pop == '*****':  # Special case for census data
@@ -179,13 +179,13 @@ def main():
         lambda row: f"{row['key_row'].title().replace('_', ' ')} is {row['house_affordability_rank']} most affordable", axis=1
     )
     
-    output_df['census_population_formatted'] = output_df['census_population'].apply(
+    output_df['census_population'] = output_df['census_population'].apply(
         lambda x: f"{int(x):,}" if pd.notna(x) else ""
     )
     
     final_columns = [
         'key_row',
-        'census_population_formatted',
+        'census_population',
         'population_rank',
         'population_blurb',
         'median_household_income_formatted',
